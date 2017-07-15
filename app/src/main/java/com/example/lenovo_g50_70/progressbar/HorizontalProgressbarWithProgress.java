@@ -55,6 +55,45 @@ public class HorizontalProgressbarWithProgress extends ProgressBar {
         mReachColor = array.getColor(R.styleable.HorizontalProgressbarWithProgress_progress_reach_color, mReachColor);
         mReachHeight = (int) array.getDimension(R.styleable.HorizontalProgressbarWithProgress_progress_reach_height, mReachHeight);
         array.recycle();
+
+        //避免textHeight测量不准确，需初始化字体大小
+        mPaint.setTextSize(mTextSize);
+    }
+
+    @Override
+    protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+
+        //水平进度条的宽度由用户指定尺寸大小
+        int width = MeasureSpec.getSize(widthMeasureSpec);
+        int height = measureHeight(heightMeasureSpec);
+
+        setMeasuredDimension(width, height);
+        mRealWidth = getMeasuredWidth() - getPaddingLeft() - getPaddingRight();
+    }
+
+    /**
+     * 测量进度条高度
+     *
+     * @param heightMeasureSpec
+     * @return
+     */
+    private int measureHeight(int heightMeasureSpec) {
+        int result = 0;
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+
+        if (heightMode == MeasureSpec.EXACTLY) {
+            result = heightSize;
+        } else {
+            //自己来测量决定高度
+            int textHeight = (int) (mPaint.descent() - mPaint.ascent());
+            result = getPaddingTop() + getPaddingBottom() + Math.max(Math.max(mReachHeight, mUnReachHeight), Math.abs(textHeight));
+
+            if (heightMode == MeasureSpec.AT_MOST) {
+                result = Math.min(result, heightSize);
+            }
+        }
+        return result;
     }
 
     /**
