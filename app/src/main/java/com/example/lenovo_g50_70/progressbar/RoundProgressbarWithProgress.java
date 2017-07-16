@@ -44,4 +44,19 @@ public class RoundProgressbarWithProgress extends HorizontalProgressbarWithProgr
         mPaint.setDither(true);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
     }
+
+    @Override
+    protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        mMaxPaintWidth = Math.max(mReachHeight, mUnReachHeight);
+
+        //宽度的期望值，wrap_content
+        int expect = mRadius * 2 + mMaxPaintWidth + getPaddingLeft() + getPaddingRight();
+        int width = resolveSize(expect, widthMeasureSpec);
+        int height = resolveSize(expect, heightMeasureSpec);
+
+        int realWidth = Math.min(width, height);
+        mRadius = (realWidth - getPaddingLeft() - getPaddingRight() - mMaxPaintWidth) / 2;
+
+        setMeasuredDimension(realWidth, realWidth);
+    }
 }
