@@ -2,7 +2,9 @@ package com.example.lenovo_g50_70.progressbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 
 /**
@@ -58,5 +60,35 @@ public class RoundProgressbarWithProgress extends HorizontalProgressbarWithProgr
         mRadius = (realWidth - getPaddingLeft() - getPaddingRight() - mMaxPaintWidth) / 2;
 
         setMeasuredDimension(realWidth, realWidth);
+    }
+
+    @Override
+    protected synchronized void onDraw(Canvas canvas) {
+        String text = getProgress() + "%";
+        float textWidth = mPaint.measureText(text);
+        float textHeight = (mPaint.descent() + mPaint.ascent()) / 2;
+
+        canvas.save();
+        canvas.translate(getPaddingLeft() + mMaxPaintWidth / 2, getPaddingTop() + mMaxPaintWidth / 2);
+        mPaint.setStyle(Paint.Style.STROKE);
+
+        //draw unreach bar
+        mPaint.setColor(mUnReachColor);
+        mPaint.setStrokeWidth(mUnReachHeight);
+        canvas.drawCircle(mRadius, mRadius, mRadius, mPaint);
+
+        //draw reach bar
+        mPaint.setColor(mReachColor);
+        mPaint.setStrokeWidth(mReachHeight);
+        //圆弧的角度
+        float sweepAngle = getProgress() * 1.0f / getMax() * 360;
+        //画圆弧
+        canvas.drawArc(new RectF(0, 0, mRadius * 2, mRadius * 2), 0, sweepAngle, false, mPaint);
+
+        //draw text
+        mPaint.setColor(mTextColor);
+        mPaint.setStyle(Paint.Style.FILL);
+        canvas.drawText(text, mRadius - textWidth / 2, mRadius - textHeight, mPaint);
+        canvas.restore();
     }
 }

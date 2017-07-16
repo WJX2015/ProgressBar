@@ -8,12 +8,15 @@ import android.os.Bundle;
 public class MainActivity extends AppCompatActivity {
     private static final int MSG_UPDATE = 0X001;
     private HorizontalProgressbarWithProgress mProgress;
+    private RoundProgressbarWithProgress mWithProgress;
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             if (msg.what == MSG_UPDATE) {
                 int progress = mProgress.getProgress();
                 mProgress.setProgress(++progress);
+                mWithProgress.setProgress(++progress);
                 if (progress >= 100) {
                     mHandler.removeMessages(0X001);
                 }
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void init() {
         mProgress = (HorizontalProgressbarWithProgress) findViewById(R.id.progress01);
+        mWithProgress = (RoundProgressbarWithProgress) findViewById(R.id.progress02);
         mHandler.sendEmptyMessage(0X001);
     }
 }
