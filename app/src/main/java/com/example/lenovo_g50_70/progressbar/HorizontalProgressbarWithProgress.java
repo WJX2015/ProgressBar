@@ -2,10 +2,13 @@ package com.example.lenovo_g50_70.progressbar;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.ProgressBar;
+
+import static android.os.Build.VERSION_CODES.M;
 
 /**
  * 水平的进度条，自带进度
@@ -94,6 +97,46 @@ public class HorizontalProgressbarWithProgress extends ProgressBar {
             }
         }
         return result;
+    }
+
+    @Override
+    protected synchronized void onDraw(Canvas canvas) {
+        canvas.save();
+        canvas.translate(getPaddingLeft(), getHeight() / 2);
+
+        //draw reach bar
+        boolean noNeedUnRech = false;
+        String text = getProgress() + "%";
+        int textWidth = (int) mPaint.measureText(text);
+        float radio = getProgress() * 1.0f / getMax();
+        float progressX = radio * mRealWidth;
+        if (progressX + textWidth > mRealWidth) {
+            progressX = mRealWidth - textWidth;
+            noNeedUnRech = true;
+        }
+
+        float endX = radio * mRealWidth - mTextOffset / 2;
+        if (endX > 0) {
+            mPaint.setColor(mReachColor);
+            mPaint.setStrokeWidth(mReachHeight);
+            canvas.drawLine(0, 0, endX, 0, mPaint);
+        }
+
+        //draw text
+        mPaint.setColor(mTextColor);
+        int y = (int) (-(mPaint.descent() - mPaint.ascent()) / 2);
+        canvas.drawText(text, progressX, y, mPaint);
+
+        //draw unreach bar
+
+        if (!noNeedUnRech) {
+            float start = progressX + mTextOffset / 2 + textWidth;
+            mPaint.setColor(mUnReachColor);
+            mPaint.setStrokeWidth(mUnReachHeight);
+            canvas.drawLine(start, 0, mRealWidth, 0, mPaint);
+        }
+
+        canvas.restore();
     }
 
     /**
